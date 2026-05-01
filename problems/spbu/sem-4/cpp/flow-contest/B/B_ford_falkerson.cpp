@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include <climits>
 
@@ -12,7 +13,7 @@ typedef struct Edge {
     int rem_flow() {
         return cap - flow;
     }
-};
+} Edge;
 
 vector<vector<int>> g;
 vector<Edge> edges;
@@ -23,9 +24,8 @@ void add_edge(
     g[from].push_back(edges.size());
     edges.push_back({to, cap, 0});
     g[to].push_back(edges.size());
-    edges.push_back({from, 0, 0});
+    edges.push_back({from, cap, 0});
 }
-
 
 vector<bool> visited;
 
@@ -45,8 +45,8 @@ int s2t_dfs(
         int res = s2t_dfs(e.to, t, min(mn, rem));
         if (res <= 0) continue;
 
-        edges[e_i ^ 1].flow -= res;
         e.flow += res;
+        edges[e_i ^ 1].flow -= res;
         return res;
     }
 
@@ -65,4 +65,27 @@ int ford_falkerson(
     }
 
     return max_flow;
+}
+
+int main() {
+    std::ios_base::sync_with_stdio(false);
+    std::cin.tie(nullptr);
+    std::cout.tie(nullptr);
+
+    int N, M;
+    cin >> N >> M;
+    g.assign(N, {});
+    edges.reserve(2 * M);
+    int from, to, cap;
+    for (int i = 0; i < M; ++i) {
+        cin >> from >> to >> cap;
+        --from; --to;
+        add_edge(from, to, cap);
+    }
+
+    int max_flow = ford_falkerson(0, N-1);
+    cout << max_flow << ".00000000000000000000" << '\n';
+    for (int i = 0; i < M; ++i) {
+        cout << edges[2 * i].flow << ".00000000000000000000" << "\n";
+    }
 }

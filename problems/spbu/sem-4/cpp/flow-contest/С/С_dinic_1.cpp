@@ -1,9 +1,12 @@
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include <climits>
 #include <queue>
 
+
 using namespace std;
+using ll = long long;
 
 typedef struct Edge {
     int to;
@@ -11,7 +14,8 @@ typedef struct Edge {
     int flow;
 
     int rem_flow() const { return cap - flow; }
-};
+    bool is_saturated() const { return cap == flow; }
+} Edge;
 
 vector<vector<int>> g;
 vector<Edge> edges;
@@ -21,11 +25,13 @@ vector<int> ptr;
 vector<int> d;
 
 
-void add_edge(int from, int to, int cap) {
+void add_edge(
+    int from, int to, int cap
+) {
     g[from].push_back(edges.size());
     edges.push_back({to, cap, 0});
     g[to].push_back(edges.size());
-    edges.push_back({from, 0, 0});
+    edges.push_back({from, cap, 0});
 }
 
 
@@ -97,8 +103,8 @@ bool layer_bfs(
     return false;
 }
 
-int dinic(int s, int t) {
-    int max_flow = 0;
+ll dinic(int s, int t) {
+    ll max_flow = 0;
     while(layer_bfs(g, s, t)) {
         int flow = block_flow(s, t);
         if (flow <= 0) return max_flow;
@@ -106,4 +112,77 @@ int dinic(int s, int t) {
     }
 
     return max_flow;
+}
+
+vector<bool> cut_visited;
+
+void stack_traverse(
+    const vector<vector<int>>& g, int s
+) {
+    int n = g.size();
+
+    vector<int> st;
+    st.push_back(s);
+
+    cut_visited.assign(n, false);
+    cut_visited[s] = true;
+
+    while (!st.empty()) {
+        int u = st.back(); st.pop_back();
+        for (int i = 0; i < g[u].size(); ++i) {
+            int e_i = g[u][i];
+            Edge& e = edges[e_i];
+
+            int to = e.to;
+            if(cut_visited[to]) continue;
+            if (e.is_saturated()) continue;
+
+            cut_visited[to] = true;
+            st.push_back(to);
+        }
+    }
+}
+
+typedef struct InputEdge {
+    int from;
+    int to;
+} InputEdge;
+
+int main() {
+    std::ios_base::sync_with_stdio(false);
+    std::cin.tie(nullptr);
+    std::cout.tie(nullptr);
+
+    int N, M, s, t;
+    cin >> N >> M;
+    s = 0; t = N - 1;
+    g.assign(N, {});
+    edges.reserve(2 * M);
+    vector<InputEdge> iedges(M);
+    int from, to, cap;
+    for (int i = 0; i < M; ++i) {
+        cin >> from >> to >> cap;
+        --from; --to;
+        add_edge(from, to, cap);
+        iedges[i] = {from, to};
+    }
+
+    ll max_flow = dinic(s, t);
+
+    stack_traverse(g, s);
+    int cnt = 0;
+    vector<int> edge_seq; edge_seq.reserve(M);
+    for (int i = 0; i < M; ++i) {
+        InputEdge ie = iedges[i];
+        if (cut_visited[ie.from] == cut_visited[ie.to]) continue;
+        ++cnt;
+        edge_seq.push_back(i + 1);
+    }
+
+    cout << cnt << ' ' << max_flow << '\n';
+    for (int i = 0; i < edge_seq.size(); ++i) {
+        if (i) cout << ' ';
+        cout << edge_seq[i];
+    }
+    cout << endl;
 }

@@ -1,38 +1,43 @@
 #include <iostream>
+#include <iomanip>
 #include <vector>
+#include <climits>
 #include <queue>
 
 using namespace std;
+
 
 typedef struct Edge {
     int to;
     int cap;
     int flow;
 
-    int rem_flow() { return cap - flow; }
-};
+    int rem_flow() const { return cap - flow; }
+} Edge;
 
 typedef struct Frame
 {
     int u;
     int mn;
-};
+} Frame;
 
 typedef struct Prev {
     int from;
     int edge_id;
-};
+} Prev;
 
 vector<vector<int>> g;
 vector<Edge> edges;
 vector<bool> visited;
 vector<Prev> used_edge;
 
-void add_edge(int from, int to, int cap) {
+void add_edge(
+    int from, int to, int cap
+) {
     g[from].push_back(edges.size());
     edges.push_back({to, cap, 0});
     g[to].push_back(edges.size());
-    edges.push_back({from, 0, 0});
+    edges.push_back({from, cap, 0});
 }
 
 int s2t_bfs(
@@ -86,4 +91,27 @@ int edmonds_karp(int s, int t) {
     }
 
     return max_flow;
+}
+
+int main() {
+    std::ios_base::sync_with_stdio(false);
+    std::cin.tie(nullptr);
+    std::cout.tie(nullptr);
+
+    int N, M;
+    cin >> N >> M;
+    g.assign(N, {});
+    edges.reserve(2 * M);
+    int from, to, cap;
+    for (int i = 0; i < M; ++i) {
+        cin >> from >> to >> cap;
+        --from; --to;
+        add_edge(from, to, cap);
+    }
+
+    int max_flow = edmonds_karp(0, N-1);
+    cout << max_flow << ".00000000000000000000" << '\n';
+    for (int i = 0; i < M; ++i) {
+        cout << edges[2 * i].flow << ".00000000000000000000" << "\n";
+    }
 }
