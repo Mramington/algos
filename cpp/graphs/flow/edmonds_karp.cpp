@@ -9,19 +9,19 @@ typedef struct Edge {
     int cap;
     int flow;
 
-    int rem_flow() { return cap - flow; }
-};
+    int rem_flow() const { return cap - flow; }
+} Edge;
 
 typedef struct Frame
 {
     int u;
     int mn;
-};
+} Frame;
 
 typedef struct Prev {
     int from;
     int edge_id;
-};
+} Prev;
 
 vector<vector<int>> g;
 vector<Edge> edges;

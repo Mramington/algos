@@ -11,7 +11,7 @@ typedef struct Edge {
     int flow;
 
     int rem_flow() const { return cap - flow; }
-};
+} Edge;
 
 vector<vector<int>> g;
 vector<Edge> edges;

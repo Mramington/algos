@@ -9,10 +9,8 @@ typedef struct Edge {
     int cap;
     int flow;
 
-    int rem_flow() {
-        return cap - flow;
-    }
-};
+    int rem_flow() const { return cap - flow; }
+} Edge;
 
 vector<vector<int>> g;
 vector<Edge> edges;
@@ -45,8 +43,8 @@ int s2t_dfs(
         int res = s2t_dfs(e.to, t, min(mn, rem));
         if (res <= 0) continue;
 
-        edges[e_i ^ 1].flow -= res;
         e.flow += res;
+        edges[e_i ^ 1].flow -= res;
         return res;
     }
 
