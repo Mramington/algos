@@ -2,12 +2,13 @@
 #include <iostream>
 
 using namespace std;
-int parent[100];
-vector<int> sizes = vector<int>(100, 0);
+
+vector<int> parent(100);
+vector<int> ranks(100, 0);
 
 int make_set(int v) {
+    ranks[v] = 1;
     return parent[v] = v;
-    sizes[v] = 1;
 }
 
 int find_set(int u) {
@@ -20,11 +21,10 @@ int union_sets(int u, int v) {
     int vp = find_set(v);
     if (up == vp) return up;
 
-    if (sizes[up] < sizes[vp]) {
+    if (ranks[up] < ranks[vp]) {
         swap(up, vp);
     }
-    sizes[vp] += sizes[up];
+    if (ranks[vp] == ranks[up]) ++ranks[up];
     parent[vp] = up;
     return up;
 }
-
